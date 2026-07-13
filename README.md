@@ -3,7 +3,7 @@
 
 An end-to-end ML project that predicts customer churn, explains individual predictions using SHAP, and simulates whether a retention offer is financially worth sending to a specific customer.
 
-**Live Demo:** [Streamlit App Link]
+**Live Demo:** [Streamlit App Link](https://customer-churn-prediction-jaideep190.streamlit.app/)
 
 ![Dashboard Overview](images/streamlit_ui_1.png)
 
