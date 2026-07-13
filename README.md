@@ -47,11 +47,97 @@ Class imbalance handled using `scale_pos_weight` in XGBoost, tuned against `SMOT
 | Churn Recall | 0.87 |
 | Churn Precision | 0.54 |
 
-![ROC Curve](images/roc_curve.png)
-![Confusion Matrix](images/confusion_matrix_weighted.png)
+### Results Summary
 
-Threshold is adjustable in the app to shift the precision/recall trade-off based on business cost assumptions.
+```text
+--- Threshold: 0.5 ---
+ROC AUC (proba-based):  87.50%
+Model accuracy:  81.12%
+              precision    recall  f1-score   support
 
+           0       0.88      0.86      0.87      1035
+           1       0.64      0.66      0.65       374
+
+    accuracy                           0.81      1409
+   macro avg       0.76      0.76      0.76      1409
+weighted avg       0.81      0.81      0.81      1409
+
+scale_pos_weight = 2.77
+
+=== Model with scale_pos_weight ===
+```
+
+```text
+--- Threshold: 0.5 ---
+ROC AUC (proba-based):  87.28%
+Model accuracy:  76.58%
+              precision    recall  f1-score   support
+
+           0       0.94      0.73      0.82      1035
+           1       0.54      0.87      0.66       374
+
+    accuracy                           0.77      1409
+   macro avg       0.74      0.80      0.74      1409
+weighted avg       0.83      0.77      0.78      1409
+
+=== Threshold tuning (using scale_pos_weight model) ===
+```
+
+```text
+--- Threshold: 0.3 ---
+ROC AUC (proba-based):  87.28%
+Model accuracy:  68.20%
+              precision    recall  f1-score   support
+
+           0       0.97      0.58      0.73      1035
+           1       0.45      0.95      0.61       374
+
+    accuracy                           0.68      1409
+   macro avg       0.71      0.77      0.67      1409
+weighted avg       0.83      0.68      0.70      1409
+```
+
+```text
+--- Threshold: 0.4 ---
+ROC AUC (proba-based):  87.28%
+Model accuracy:  72.60%
+              precision    recall  f1-score   support
+
+           0       0.95      0.66      0.78      1035
+           1       0.49      0.91      0.64       374
+
+    accuracy                           0.73      1409
+   macro avg       0.72      0.79      0.71      1409
+weighted avg       0.83      0.73      0.74      1409
+```
+
+```text
+--- Threshold: 0.5 ---
+ROC AUC (proba-based):  87.28%
+Model accuracy:  76.58%
+              precision    recall  f1-score   support
+
+           0       0.94      0.73      0.82      1035
+           1       0.54      0.87      0.66       374
+
+    accuracy                           0.77      1409
+   macro avg       0.74      0.80      0.74      1409
+weighted avg       0.83      0.77      0.78      1409
+```
+
+```text
+--- Threshold: 0.6 ---
+ROC AUC (proba-based):  87.28%
+Model accuracy:  79.28%
+              precision    recall  f1-score   support
+
+           0       0.89      0.81      0.85      1035
+           1       0.59      0.74      0.65       374
+
+    accuracy                           0.79      1409
+   macro avg       0.74      0.77      0.75      1409
+weighted avg       0.81      0.79      0.80      1409
+```
 ---
 
 ## Explainability with SHAP
@@ -80,7 +166,7 @@ Users can adjust offer cost, success rate, and retention duration to see whether
 ## How to Run Locally
 
 ```bash
-git clone [your-repo-url]
+git clone https://github.com/jaideep190/Customer-Churn-Prediction
 cd churn-prediction-retention-simulator
 
 python -m venv myenv
