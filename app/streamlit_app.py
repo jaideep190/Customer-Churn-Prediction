@@ -173,6 +173,13 @@ with sim_col2:
 expected_revenue_saved = churn_proba * offer_success_rate * monthly_revenue * retention_months
 net_value = expected_revenue_saved - offer_cost
 
+if offer_cost == 0:
+    st.info(
+        "Offer cost is set to zero, meaning any retention action with a "
+        "nonzero success rate will always appear worthwhile. Set a "
+        "realistic cost (e.g., discount value, staff time) for a meaningful comparison."
+    )
+
 st.markdown("#### Result")
 
 r1, r2, r3 = st.columns(3)
