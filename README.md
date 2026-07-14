@@ -31,33 +31,36 @@ Class imbalance handled using `scale_pos_weight` in XGBoost, tuned against `SMOT
 
 ## Results Summary
 
-Two imbalance-handling strategies were evaluated: SMOTE (synthetic oversampling) and `scale_pos_weight` (cost-sensitive learning). The `scale_pos_weight` model was further tested across four thresholds to study the precision/recall trade-off.
+Five models were trained and compared under identical preprocessing and train/test splits: Logistic Regression, Random Forest, K-Nearest Neighbors, XGBoost, and LightGBM. Class imbalance was handled per-model - `class_weight="balanced"` for Logistic Regression and Random Forest, `scale_pos_weight` for XGBoost and LightGBM, and SMOTE for KNN (which has no native weighting support).
 
-| Method | Threshold | ROC AUC | Accuracy | Churn Precision | Churn Recall | Churn F1 |
-|---|---|---|---|---|---|---|
-| SMOTE | 0.5 | 87.0% | 80.0% | 0.60 | 0.74 | 0.66 |
-| scale_pos_weight | 0.3 | 87.2% | 67.8% | 0.45 | 0.95 | 0.61 |
-| scale_pos_weight | 0.4 | 87.2% | 72.5% | 0.49 | 0.91 | 0.64 |
-| scale_pos_weight | 0.5 | 87.2% | 76.2% | 0.53 | 0.86 | 0.66 |
-| scale_pos_weight | 0.6 | 87.2% | 79.4% | 0.59 | 0.74 | 0.65 |
+| Model | ROC AUC | Accuracy | Churn Precision | Churn Recall | Churn F1 |
+|---|---|---|---|---|---|
+| Random Forest | 87.3% | 77.9% | 0.56 | 0.82 | 0.66 |
+| LightGBM | 87.3% | 76.3% | 0.53 | 0.87 | 0.66 |
+| XGBoost | 87.2% | 76.2% | 0.53 | 0.86 | 0.66 |
+| Logistic Regression | 86.4% | 76.0% | 0.53 | 0.84 | 0.65 |
+| K-Nearest Neighbors | 79.3% | 70.6% | 0.46 | 0.72 | 0.57 |
 
-**ROC Curve Comparison**
+![ROC Curve - All Models](images/roc_curve_all_models.png)
 
-![ROC Curve](images/roc_curve.png)
+**Key finding:** Random Forest, LightGBM, and XGBoost converge to nearly identical performance (ROC AUC within 0.1%, F1 score of 0.66 across all three), suggesting the tree-based ensemble approach itself is well-suited to this dataset, and further gains would likely come from feature engineering rather than model selection. K-Nearest Neighbors underperforms notably, consistent with its known weakness on high-dimensional mixed categorical/numeric feature spaces. Logistic Regression, despite being the simplest model, stays competitive - within 1 point of AUC of the ensemble methods.
 
-Both methods reach a nearly identical ROC AUC (~87%), confirming comparable underlying model quality regardless of imbalance-handling technique. The meaningful difference lies in the threshold-dependent precision/recall trade-off shown below.
+**Threshold sensitivity (XGBoost):**
 
-**Confusion Matrices**
+| Threshold | Accuracy | Precision | Recall | F1 |
+|---|---|---|---|---|
+| 0.3 | 67.8% | 0.45 | 0.95 | 0.61 |
+| 0.4 | 72.5% | 0.49 | 0.91 | 0.64 |
+| 0.5 | 76.2% | 0.53 | 0.86 | 0.66 |
+| 0.6 | 79.4% | 0.59 | 0.74 | 0.65 |
 
-| SMOTE (Threshold 0.5) | scale_pos_weight (Threshold 0.5) |
-|---|---|
-| ![SMOTE](images/confusion_matrix_smote_t0.5.png) | ![Weighted 0.5](images/confusion_matrix_weighted_t0.5.png) |
-
-| scale_pos_weight (Threshold 0.3) | scale_pos_weight (Threshold 0.6) |
-|---|---|
-| ![Weighted 0.3](images/confusion_matrix_weighted_t0.3.png) | ![Weighted 0.6](images/confusion_matrix_weighted_t0.6.png) |
+Recall can be pushed as high as 95% by lowering the decision threshold, at the cost of precision. The right threshold depends on the relative cost of a missed churner versus a false alarm - explored directly in the Retention ROI Simulator below, rather than fixed to a single value.
 
 ---
+
+## Final Considered Result
+
+**XGBoost** was selected as the production model. While Random Forest, LightGBM, and XGBoost perform near-identically, XGBoost was chosen for consistency with the SHAP explainability analysis and threshold sensitivity testing performed as part of this project. Its performance (87.2% ROC AUC, F1 of 0.66 at the default threshold) is representative of the best achievable result across all tested models on this dataset.
 
 ## Explainability with SHAP
 
