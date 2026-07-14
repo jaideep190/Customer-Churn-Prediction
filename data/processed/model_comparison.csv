@@ -1,0 +1,6 @@
+method,threshold,roc_auc,accuracy,churn_precision,churn_recall,churn_f1
+SMOTE,0.5,0.8703,0.7999,0.5996,0.7406,0.6627
+scale_pos_weight,0.3,0.8717,0.6778,0.4492,0.9465,0.6093
+scale_pos_weight,0.4,0.8717,0.7253,0.4906,0.9091,0.6373
+scale_pos_weight,0.5,0.8717,0.7622,0.5321,0.8636,0.6585
+scale_pos_weight,0.6,0.8717,0.7935,0.5885,0.738,0.6548

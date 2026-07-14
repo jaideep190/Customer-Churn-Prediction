@@ -21,18 +21,7 @@ Customer churn directly impacts recurring revenue, and retaining an existing cus
 
 ## Dataset
 
-[Telco Customer Churn dataset](https://www.kaggle.com/datasets/blastchar/telco-customer-churn) — 7,043 customers, 20 features covering demographics, account details, and subscribed services. Churn rate: ~26.5%.
-
----
-
-## Key EDA Insights
-
-- Month-to-month contracts churn far more than annual contracts
-- ~50% of churned customers leave within the first 10 months
-- Fiber optic customers churn more than DSL, likely driven by pricing
-- Customers without online security or tech support churn more
-- Electronic check payment method has the highest churn rate
-- Senior citizens churn at nearly 2x the rate of non-seniors
+[Telco Customer Churn dataset](https://www.kaggle.com/datasets/blastchar/telco-customer-churn) - 7,043 customers, 20 features covering demographics, account details, and subscribed services. Churn rate: ~26.5%.
 
 ---
 
@@ -40,109 +29,39 @@ Customer churn directly impacts recurring revenue, and retaining an existing cus
 
 Class imbalance handled using `scale_pos_weight` in XGBoost, tuned against `SMOTE` as a comparison. Final model optimizes for recall over raw accuracy, since missing an actual churner is costlier to the business than a false alarm.
 
-| Metric | Score |
+## Results Summary
+
+Two imbalance-handling strategies were evaluated: SMOTE (synthetic oversampling) and `scale_pos_weight` (cost-sensitive learning). The `scale_pos_weight` model was further tested across four thresholds to study the precision/recall trade-off.
+
+| Method | Threshold | ROC AUC | Accuracy | Churn Precision | Churn Recall | Churn F1 |
+|---|---|---|---|---|---|---|
+| SMOTE | 0.5 | 87.0% | 80.0% | 0.60 | 0.74 | 0.66 |
+| scale_pos_weight | 0.3 | 87.2% | 67.8% | 0.45 | 0.95 | 0.61 |
+| scale_pos_weight | 0.4 | 87.2% | 72.5% | 0.49 | 0.91 | 0.64 |
+| scale_pos_weight | 0.5 | 87.2% | 76.2% | 0.53 | 0.86 | 0.66 |
+| scale_pos_weight | 0.6 | 87.2% | 79.4% | 0.59 | 0.74 | 0.65 |
+
+**ROC Curve Comparison**
+
+![ROC Curve](images/roc_curve.png)
+
+Both methods reach a nearly identical ROC AUC (~87%), confirming comparable underlying model quality regardless of imbalance-handling technique. The meaningful difference lies in the threshold-dependent precision/recall trade-off shown below.
+
+**Confusion Matrices**
+
+| SMOTE (Threshold 0.5) | scale_pos_weight (Threshold 0.5) |
 |---|---|
-| ROC AUC | 87.3% |
-| Accuracy | 76.6% |
-| Churn Recall | 0.87 |
-| Churn Precision | 0.54 |
+| ![SMOTE](images/confusion_matrix_smote_t0.5.png) | ![Weighted 0.5](images/confusion_matrix_weighted_t0.5.png) |
 
-### Results Summary
+| scale_pos_weight (Threshold 0.3) | scale_pos_weight (Threshold 0.6) |
+|---|---|
+| ![Weighted 0.3](images/confusion_matrix_weighted_t0.3.png) | ![Weighted 0.6](images/confusion_matrix_weighted_t0.6.png) |
 
-```text
---- Threshold: 0.5 ---
-ROC AUC (proba-based):  87.50%
-Model accuracy:  81.12%
-              precision    recall  f1-score   support
-
-           0       0.88      0.86      0.87      1035
-           1       0.64      0.66      0.65       374
-
-    accuracy                           0.81      1409
-   macro avg       0.76      0.76      0.76      1409
-weighted avg       0.81      0.81      0.81      1409
-
-scale_pos_weight = 2.77
-
-=== Model with scale_pos_weight ===
-```
-
-```text
---- Threshold: 0.5 ---
-ROC AUC (proba-based):  87.28%
-Model accuracy:  76.58%
-              precision    recall  f1-score   support
-
-           0       0.94      0.73      0.82      1035
-           1       0.54      0.87      0.66       374
-
-    accuracy                           0.77      1409
-   macro avg       0.74      0.80      0.74      1409
-weighted avg       0.83      0.77      0.78      1409
-
-=== Threshold tuning (using scale_pos_weight model) ===
-```
-
-```text
---- Threshold: 0.3 ---
-ROC AUC (proba-based):  87.28%
-Model accuracy:  68.20%
-              precision    recall  f1-score   support
-
-           0       0.97      0.58      0.73      1035
-           1       0.45      0.95      0.61       374
-
-    accuracy                           0.68      1409
-   macro avg       0.71      0.77      0.67      1409
-weighted avg       0.83      0.68      0.70      1409
-```
-
-```text
---- Threshold: 0.4 ---
-ROC AUC (proba-based):  87.28%
-Model accuracy:  72.60%
-              precision    recall  f1-score   support
-
-           0       0.95      0.66      0.78      1035
-           1       0.49      0.91      0.64       374
-
-    accuracy                           0.73      1409
-   macro avg       0.72      0.79      0.71      1409
-weighted avg       0.83      0.73      0.74      1409
-```
-
-```text
---- Threshold: 0.5 ---
-ROC AUC (proba-based):  87.28%
-Model accuracy:  76.58%
-              precision    recall  f1-score   support
-
-           0       0.94      0.73      0.82      1035
-           1       0.54      0.87      0.66       374
-
-    accuracy                           0.77      1409
-   macro avg       0.74      0.80      0.74      1409
-weighted avg       0.83      0.77      0.78      1409
-```
-
-```text
---- Threshold: 0.6 ---
-ROC AUC (proba-based):  87.28%
-Model accuracy:  79.28%
-              precision    recall  f1-score   support
-
-           0       0.89      0.81      0.85      1035
-           1       0.59      0.74      0.65       374
-
-    accuracy                           0.79      1409
-   macro avg       0.74      0.77      0.75      1409
-weighted avg       0.81      0.79      0.80      1409
-```
 ---
 
 ## Explainability with SHAP
 
-Every prediction is broken down using SHAP `TreeExplainer`, showing exactly which features increased or decreased a specific customer's churn risk — not just a global feature importance chart.
+Every prediction is broken down using SHAP `TreeExplainer`, showing exactly which features increased or decreased a specific customer's churn risk - not just a global feature importance chart.
 
 ![SHAP Explanation](images/shap_summary.png)
 
